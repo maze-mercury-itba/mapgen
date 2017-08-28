@@ -27,31 +27,31 @@ bool readMap(const char * path, map_t& map)
 
 	string p(path);
 	p.append(".txt");
-	ifstream f(path);
+	ifstream f(p);
 	if (f.good() == false)
 		return false;
 
 	bool valid = readPoint(f, map.target);
-	unsigned int wallCount = 0;
 	queue<dvector_t> q;
 
 	while (valid == true && f.eof() == false) {
-		dvector_t v;
-		valid = readVector(f, v);
-		q.push(v);
-		wallCount++;
 #ifdef WIN32
 		f.ignore(2);	//ignoro el enter
 #else
 		f.ignore(1);
 #endif
+		if (f.eof() == false) {
+			dvector_t v;
+			valid = readVector(f, v);
+			q.push(v);
+		}
 	}
 
-	if (valid == true && wallCount > 0) {
-		map.nWalls = wallCount;
-		map.walls = new dvector_t [wallCount];
+	if (valid == true && q.size() > 0) {
+		map.nWalls = (uint16_t)q.size();
+		map.walls = new dvector_t [map.nWalls];
 
-		for (unsigned int i = 0; i < wallCount; i++) {
+		for (unsigned int i = 0; i < map.nWalls; i++) {
 			map.walls[i] = q.front();
 			q.pop();
 		}
@@ -117,35 +117,36 @@ bool readVector(ifstream& f, dvector_t& v)
 
 bool readPoint(ifstream&f, dpoint_t& p)
 { 
-	bool valid = false;
+	int32_t valid = false;
 	char buffer[MAX_NUM_SIZE + 1] = {'\0'};	//dejo un lugar para el terminador
 	unsigned int i = 0;
 
 	do { 
 		buffer[i] = f.get();
-	} while (buffer[i++] != ' ' && i <= MAX_NUM_SIZE && f.eof() == false);
+	} while (buffer[i] != ' ' && i++ < MAX_NUM_SIZE && f.eof() == false);
 	//la separacion entre x e y esta determinada aca: un espacio
 
-	if (i > 0 && f.eof() == false) {
-		buffer[i - 1] = '\0';	//reemplazo el espacio por un terminador para poder usar buffer como string
-		p.x = getFloat(buffer, (int32_t *)&valid);
+	if (i > 0 && i<MAX_NUM_SIZE && f.eof() == false) {
+		buffer[i] = '\0';	//reemplazo el espacio por un terminador para poder usar buffer como string
+		p.x = getFloat(buffer, &valid);
 
-		f.ignore(3); //ignoro " , "
+		f.ignore(2); //ignoro ", "
 		i = 0;
 
-		if (f.eof() == false && valid == true) {
+		if (f.eof() == false && bool(valid) == true) {
 			do {
 				buffer[i] = f.get();
-			} while ((isdigit(buffer[i]) == true || buffer[i] == '.') && f.eof() == false && i++ <= MAX_NUM_SIZE);
+			} while ( (bool(isdigit(buffer[i])) == true || buffer[i] == '.' || buffer[i] == '-' ) && f.eof() == false && i++ <= MAX_NUM_SIZE);
+
 			//ahora no me fijo que separa y del prox vector, solo me fijo donde no hay mas numero
 			//acepto con coma pero no negativo
 
-			if (isdigit(buffer[i]) == false && buffer[i] != '.' || f.eof() == true) {	//me fijo si llegue a copiar algo que no sea parte de y
+			if (isdigit(buffer[i]) == false && buffer[i] != '.' || buffer[i] == '-' || f.eof() == true) {	//me fijo si llegue a copiar algo que no sea parte de y
 				if (f.eof() == false) {
-					f.unget();		//no afecto a lo que separa los digitos por las dudas
+					f.unget();		//no afecto a lo que separa los puntos entre si por las dudas
 				}
 				buffer[i] = '\0';
-				p.y = getFloat(buffer, (int32_t *)&valid);
+				p.y = getFloat(buffer, &valid);
 			}
 			else {
 				valid = false;
@@ -153,5 +154,5 @@ bool readPoint(ifstream&f, dpoint_t& p)
 		}
 	}
 
-	return valid;
+	return bool(valid);
 }
