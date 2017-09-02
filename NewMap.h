@@ -8,8 +8,8 @@ typedef enum dirs { LEFT, RIGHT, UP, DOWN } direction_t;
 #define WALL_THICKNESS	.05
 #define PANEL_LEN_X		.40
 #define PANEL_LEN_Y		.40
-#define MAX_WIDTH		5.0
-#define MAX_HEIGHT		3.0
+#define MAX_WIDTH		(7.2 * PANEL_LEN_X)
+#define MAX_HEIGHT		(6.2 * PANEL_LEN_Y)
 
 #define ROWS (unsigned int(MAX_HEIGHT/PANEL_LEN_X))
 #define COLS (unsigned int(MAX_WIDTH/PANEL_LEN_Y))

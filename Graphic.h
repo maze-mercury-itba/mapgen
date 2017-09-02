@@ -26,7 +26,7 @@ public:
 //	bool isWhite(unsigned int x, unsigned int y);
 
 private:
-	bool isValid;
+	bool valid;
 
 	void setUpDisplay(unsigned int width, unsigned int height);
 	void drawWall(wallPos_t w, unsigned int thickness, ALLEGRO_COLOR c);	

@@ -8,7 +8,7 @@
 #define G_MARGIN	(std::min(width, height) * 0.01)
 
 #define T_GRID		1
-#define T_WALL		3
+#define T_WALL		5
 #define T_ACTIVE	5
 
 #define C_GRID			al_map_rgb(0,0,0)		//negro
@@ -22,14 +22,14 @@ Graphic::Graphic(const char * backgroundPath)
 	m = NULL;
 	background = NULL;
 	display = NULL;
-	isValid = false;
+	valid = false;
 
 	if ((display = al_create_display(DISP_WIDTH, DISP_HEIGHT)) != NULL) {
 		if (al_init_image_addon()) {
 			if (al_init_primitives_addon()) {
 				if ((backgroundPath != NULL && (background = al_load_bitmap(backgroundPath)) != NULL)
 					|| backgroundPath == NULL) {
-					isValid = true;
+					valid = true;
 					setUpDisplay(DISP_WIDTH, DISP_HEIGHT);
 				}
 				else {
@@ -62,12 +62,12 @@ bool Graphic::setMap(NewMap * m)
 		last = m->active;
 	}
 
-	return (isValid && (m == NULL));
+	return (valid && (m == NULL));
 }
 
 Graphic::~Graphic()
 {
-	if (this->isValid) {
+	if (this->valid) {
 		if (background != NULL) {
 			al_destroy_bitmap(background);
 			background = NULL;
